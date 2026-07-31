@@ -1,38 +1,33 @@
-# VitaDoctor Hardware Diagnostic
+# VitaDoctor Hardware Diagnostic v1.01
 
-VitaDoctor is a standalone hardware testing and diagnostic tool for the PlayStation Vita (PCH-1000 OLED, PCH-2000 Slim, and PlayStation TV / VTE-1000).
+VitaDoctor is a complete hardware testing and diagnostic utility for the Sony PlayStation Vita (PCH-1000 OLED, PCH-2000 Slim, PSTV / VTE-1000, PTEL-1000 Testing Kit, and PDEL-1000 Development Tool).
 
-It runs directly as a VPK application without requiring background plugins.
+It runs directly as a standalone VPK application without requiring background kernel plugins.
 
 ---
 
-## Features
+## What's New in Version 1.01
 
-- **Analog Sticks & Buttons Test**
-  - Live visual position indicators for Left and Right analog sticks with raw values (`0-255`) and percentage offset calculations.
-  - Complete button matrix test for D-Pad, Face Buttons, Shoulder Triggers (`L`/`R`), `SELECT`, and `START`.
-  - Front and rear touch panel input detection.
+- Added hardware detection for PS Vita TEST (PTEL-1000) and DevKit (PDEL-1000) units.
+- Integrated dynamic model recognition (PCH-1000 OLED vs PCH-2000 Slim vs PSTV).
+- Added Motherboard Revision detection (IRS-002 / PCA-001, DOL-1001, VTE-1000).
+- Added Analog Stick Circularity Error % calculator.
+- Added interactive PS Button Blue LED pulse test (Triangle / Circle controls).
+- Added Camera hardware viewfinder test with Square port switcher and Triangle stop button.
+- Updated total system audit report suite with Pass/Fail health scoring and actionable repair advice.
 
-- **Battery Health & Metrics**
-  - Real-time battery life percentage, estimated cell health based on factory design capacity (2210 mAh), battery voltage, and temperature (°C / °F).
-  - 60-second live voltage history graph.
+---
 
-- **Display & OLED Test**
-  - Pure color test patterns (Red, Green, Blue, White, Black, Grayscale, and Grid).
-  - Built-in OLED Exerciser to help cycle pixels and reduce retention/burn-in.
+## Diagnostic Suite Tabs
 
-- **Motion Sensors**
-  - Live 3D artificial horizon gauge using the built-in gyroscope.
-  - Real-time Accelerometer ($g$) and Gyroscope (rad/s) axis data readout.
-
-- **Audio & Microphone**
-  - Separate Left (440 Hz) and Right (880 Hz) stereo speaker sound test with embedded WAV audio tones.
-  - Real-time graphical VU-meter for the integrated PS Vita microphone.
-
-- **System & Storage Info**
-  - Hardware model detection (PCH-1000 OLED vs PCH-2000 Slim vs PS TV).
-  - Wi-Fi IP address and hardware MAC address readout.
-  - Live storage partition capacity monitoring for `ux0:`, `ur0:`, `uma0:`, and `gro0:`.
+1. **[1] STICKS**: Visual position indicators for Left/Right analog sticks with raw values (`0-255`), offset %, circularity error %, button matrix test (D-Pad, Face Buttons, Triggers, Select, Start), and Touch panel test.
+2. **[2] BATTERY**: Real-time battery %, cell health estimate (2210 mAh base), voltage (mV), temperature (°C/°F), remaining time, and 60-second voltage history graph.
+3. **[3] DISPLAY**: Fullscreen RGB, White, Black, Grayscale, and Grid color test patterns, plus built-in OLED Exerciser to prevent burn-in.
+4. **[4] MOTION**: 3D Artificial horizon gauge, Gyroscope (rad/s) and Accelerometer ($g$) sensor axes readout.
+5. **[5] AUDIO**: Separate Left (440 Hz) and Right (880 Hz) stereo speaker test tones and live Microphone graphical VU-Meter.
+6. **[6] CAMERA**: Dual Camera hardware detection (Front/Rear OV2720 sensors), Square port switcher, and Triangle stop button.
+7. **[7] SYSTEM**: Console model detection (PCH-1000 OLED, PCH-2000 Slim, PSTV, PTEL-1000, PDEL-1000), Wi-Fi IP address, hardware MAC address, PS Button LED pulse test, and partition monitoring (`ux0:`, `ur0:`, `uma0:`, `gro0:`).
+8. **[8] REPORT**: Interactive & customizable diagnostic test suite. Select individual tests with D-Pad/Cross, press Square to select all, and press START to run total system audit with Pass/Fail score calculation.
 
 ---
 
@@ -42,7 +37,10 @@ It runs directly as a VPK application without requiring background plugins.
 - **SEL + START**: Exit VitaDoctor
 - **Square / Circle** *(Audio Tab)*: Play Left / Right speaker test tone
 - **Square** *(Display Tab)*: Toggle OLED Exerciser
-- **D-Pad Left / Right** *(Display Tab)*: Switch display test pattern
+- **Square / Triangle** *(Camera Tab)*: Switch Front / Rear Camera or Stop test
+- **Triangle / Circle** *(System Tab)*: Pulse PS Button Blue LED / Turn Off
+- **D-Pad Up / Down, Cross, Square** *(Report Tab)*: Navigate & toggle diagnostic tests
+- **START** *(Report Tab)*: Run Total System Audit
 
 ---
 
@@ -63,8 +61,8 @@ Output VPK will be generated in `build/VitaDoctor.vpk`.
 
 ## Credits & Special Thanks
 
-- **VitaSDK Developers**: For maintaining the open-source PS Vita SDK and toolchain.
-- **TheFloW**: For his legendary contributions, documentation, and tools for the PS Vita scene.
+- **VitaSDK Developers**: For creating and maintaining the open-source PS Vita SDK, headers, and toolchain.
+- **TheFloW**: For his legendary work, documentation, and tools for the PS Vita scene.
 - **xerpi**: For `vita2dlib`.
 
 ---

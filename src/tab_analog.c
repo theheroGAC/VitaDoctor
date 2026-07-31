@@ -46,11 +46,14 @@ static void draw_stick_widget(GuiState *state, float px, float py, float pw, flo
     if (state->font) {
         char buf[64];
         snprintf(buf, sizeof(buf), "Raw X: %3d  Y: %3d", raw_x, raw_y);
-        vita2d_pgf_draw_text(state->font, px + 15, py + ph - 35, COLOR_TEXT, 0.8f, buf);
+        vita2d_pgf_draw_text(state->font, px + 15, py + ph - 45, COLOR_TEXT, 0.8f, buf);
 
         float pct_dist = (dist_from_center / 128.0f) * 100.0f;
-        snprintf(buf, sizeof(buf), "Stick Offset: %d%%", (int)pct_dist);
-        vita2d_pgf_draw_text(state->font, px + 15, py + ph - 15, COLOR_WARNING, 0.8f, buf);
+        float circ_err = fabsf(pct_dist - 88.0f) * 0.35f;
+        if (dist_from_center < 15.0f) circ_err = 0.0f;
+
+        snprintf(buf, sizeof(buf), "Stick Offset: %d%%  (Err: %.1f%%)", (int)pct_dist, circ_err);
+        vita2d_pgf_draw_text(state->font, px + 15, py + ph - 20, COLOR_WARNING, 0.78f, buf);
     }
 }
 

@@ -8,7 +8,9 @@ static const char *tab_names[TAB_COUNT] = {
     "[3] DISPLAY",
     "[4] MOTION",
     "[5] AUDIO",
-    "[6] SYSTEM"
+    "[6] CAMERA",
+    "[7] SYSTEM",
+    "[8] REPORT"
 };
 
 void gui_init(GuiState *state) {
@@ -49,7 +51,7 @@ void gui_draw_header(GuiState *state, const char *title) {
         if (title) {
             vita2d_pgf_draw_text(state->font, 180, 31, COLOR_TEXT, 1.0f, title);
         }
-        vita2d_pgf_draw_text(state->font, 840, 31, COLOR_TEXT_MUTED, 0.85f, "v1.00");
+        vita2d_pgf_draw_text(state->font, 840, 31, COLOR_TEXT_MUTED, 0.85f, "v1.01");
     }
 }
 
@@ -73,8 +75,8 @@ void gui_draw_tabs(GuiState *state) {
 
         if (state->font) {
             unsigned int color = active ? COLOR_BG : COLOR_TEXT_MUTED;
-            float txt_x = x + (tab_w / 2.0f) - (strlen(tab_names[i]) * 4.2f);
-            vita2d_pgf_draw_text(state->font, txt_x, y + 24, color, 0.85f, tab_names[i]);
+            float txt_x = x + (tab_w / 2.0f) - (strlen(tab_names[i]) * 3.3f);
+            vita2d_pgf_draw_text(state->font, txt_x, y + 23, color, 0.72f, tab_names[i]);
         }
     }
 }

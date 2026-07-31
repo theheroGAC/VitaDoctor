@@ -9,13 +9,15 @@
 #include "tab_display.h"
 #include "tab_motion.h"
 #include "tab_audio.h"
+#include "tab_camera.h"
 #include "tab_system.h"
+#include "tab_report.h"
 
 int main(int argc, char *argv[]) {
     vita2d_init();
     vita2d_set_clear_color(COLOR_BG);
 
-    sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+    sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
     sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
     sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
 
@@ -26,7 +28,9 @@ int main(int argc, char *argv[]) {
     tab_display_init();
     tab_motion_init();
     tab_audio_init();
+    tab_camera_init();
     tab_system_init();
+    tab_report_init();
 
     SceCtrlData pad;
     SceTouchData touch_front, touch_back;
@@ -45,7 +49,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (state.show_disclaimer) {
-            if (pressed_buttons & (SCE_CTRL_CROSS | SCE_CTRL_CIRCLE | SCE_CTRL_SQUARE | SCE_CTRL_TRIANGLE | SCE_CTRL_START)) {
+            if (pressed_buttons || pad.buttons != 0 || touch_front.reportNum > 0) {
                 state.show_disclaimer = 0;
             }
         } else {
@@ -70,6 +74,12 @@ int main(int argc, char *argv[]) {
                 tab_display_handle_input(&state, pressed_buttons);
             } else if (state.current_tab == TAB_AUDIO) {
                 tab_audio_handle_input(&state, pressed_buttons);
+            } else if (state.current_tab == TAB_CAMERA) {
+                tab_camera_handle_input(&state, pressed_buttons);
+            } else if (state.current_tab == TAB_SYSTEM) {
+                tab_system_handle_input(&state, pressed_buttons);
+            } else if (state.current_tab == TAB_REPORT) {
+                tab_report_handle_input(&state, pressed_buttons);
             }
         }
 
@@ -95,8 +105,14 @@ int main(int argc, char *argv[]) {
             case TAB_AUDIO:
                 tab_audio_draw(&state);
                 break;
+            case TAB_CAMERA:
+                tab_camera_draw(&state);
+                break;
             case TAB_SYSTEM:
                 tab_system_draw(&state);
+                break;
+            case TAB_REPORT:
+                tab_report_draw(&state);
                 break;
             default:
                 break;
@@ -111,6 +127,7 @@ int main(int argc, char *argv[]) {
     vita2d_wait_rendering_done();
     gui_finish(&state);
     tab_audio_finish();
+    tab_camera_finish();
     tab_system_finish();
     sceMotionStopSampling();
     vita2d_fini();

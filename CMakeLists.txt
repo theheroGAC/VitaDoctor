@@ -20,7 +20,7 @@ endif()
 
 set(VITA_APP_NAME "VitaDoctor")
 set(VITA_TITLEID "VITADOC00")
-set(VITA_VERSION "01.00")
+set(VITA_VERSION "01.01")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-q -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-q -O2")
@@ -35,7 +35,9 @@ add_executable(VitaDoctor
   src/tab_display.c
   src/tab_motion.c
   src/tab_audio.c
+  src/tab_camera.c
   src/tab_system.c
+  src/tab_report.c
 )
 
 target_include_directories(VitaDoctor PRIVATE src)
@@ -51,6 +53,7 @@ target_link_libraries(VitaDoctor PRIVATE
   ScePower_stub
   SceAudio_stub
   SceAudioIn_stub
+  SceCamera_stub
   SceNet_stub
   SceNetCtl_stub
   ScePgf_stub
