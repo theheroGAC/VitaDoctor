@@ -18,7 +18,7 @@ elseif(EXISTS "C:/msys64/usr/local/vitasdk/share/vita.cmake")
   include("C:/msys64/usr/local/vitasdk/share/vita.cmake")
 endif()
 
-set(VITA_APP_NAME "VitaDoctor Hardware Diagnostic")
+set(VITA_APP_NAME "VitaDoctor")
 set(VITA_TITLEID "VITADOC00")
 set(VITA_VERSION "01.00")
 
@@ -35,6 +35,7 @@ add_executable(VitaDoctor
   src/tab_display.c
   src/tab_motion.c
   src/tab_audio.c
+  src/tab_system.c
 )
 
 target_include_directories(VitaDoctor PRIVATE src)
@@ -50,6 +51,8 @@ target_link_libraries(VitaDoctor PRIVATE
   ScePower_stub
   SceAudio_stub
   SceAudioIn_stub
+  SceNet_stub
+  SceNetCtl_stub
   ScePgf_stub
   SceCommonDialog_stub
   SceSysmodule_stub

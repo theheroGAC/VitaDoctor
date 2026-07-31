@@ -22,6 +22,7 @@ typedef enum {
     TAB_DISPLAY,
     TAB_MOTION,
     TAB_AUDIO,
+    TAB_SYSTEM,
     TAB_COUNT
 } GuiTab;
 

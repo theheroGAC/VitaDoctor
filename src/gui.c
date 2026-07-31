@@ -7,7 +7,8 @@ static const char *tab_names[TAB_COUNT] = {
     "[2] BATTERY",
     "[3] DISPLAY",
     "[4] MOTION",
-    "[5] AUDIO"
+    "[5] AUDIO",
+    "[6] SYSTEM"
 };
 
 void gui_init(GuiState *state) {

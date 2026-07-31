@@ -6,4 +6,4 @@
 void tab_motion_init(void);
 void tab_motion_draw(GuiState *state);
 
-#endif // TAB_MOTION_H
+#endif

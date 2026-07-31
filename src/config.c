@@ -9,7 +9,7 @@ void config_set_default(VitaDoctorConfig *cfg) {
     cfg->left_outer_deadzone = 5;
     cfg->right_inner_deadzone = 10;
     cfg->right_outer_deadzone = 5;
-    cfg->deadzone_shape = 0; // Radial
+    cfg->deadzone_shape = 0;
     cfg->enable_plugin = 1;
 }
 
@@ -19,7 +19,6 @@ int config_load(VitaDoctorConfig *cfg) {
 
     FILE *f = fopen(CONFIG_PATH, "r");
     if (!f) {
-        // Try fallback directory
         f = fopen("ux0:data/VitaDoctor/config.ini", "r");
         if (!f) return 0;
     }
@@ -48,12 +47,8 @@ int config_save(const VitaDoctorConfig *cfg) {
     sceIoMkdir("ur0:tai", 0777);
 
     FILE *f = fopen(CONFIG_PATH, "w");
-    if (!f) {
-        f = fopen("ux0:data/VitaDoctor/config.ini", "w");
-        if (!f) return 0;
-    }
+    if (!f) return 0;
 
-    fprintf(f, "# VitaDoctor Configuration File\n");
     fprintf(f, "left_inner_deadzone=%d\n", cfg->left_inner_deadzone);
     fprintf(f, "left_outer_deadzone=%d\n", cfg->left_outer_deadzone);
     fprintf(f, "right_inner_deadzone=%d\n", cfg->right_inner_deadzone);
@@ -62,5 +57,17 @@ int config_save(const VitaDoctorConfig *cfg) {
     fprintf(f, "enable_plugin=%d\n", cfg->enable_plugin);
 
     fclose(f);
+
+    FILE *f2 = fopen("ur0:tai/vitadoctor_config.ini", "w");
+    if (f2) {
+        fprintf(f2, "left_inner_deadzone=%d\n", cfg->left_inner_deadzone);
+        fprintf(f2, "left_outer_deadzone=%d\n", cfg->left_outer_deadzone);
+        fprintf(f2, "right_inner_deadzone=%d\n", cfg->right_inner_deadzone);
+        fprintf(f2, "right_outer_deadzone=%d\n", cfg->right_outer_deadzone);
+        fprintf(f2, "deadzone_shape=%d\n", cfg->deadzone_shape);
+        fprintf(f2, "enable_plugin=%d\n", cfg->enable_plugin);
+        fclose(f2);
+    }
+
     return 1;
 }

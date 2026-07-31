@@ -7,16 +7,16 @@
 #define CONFIG_DIR  "ux0:data/VitaDoctor"
 
 typedef struct {
-    int left_inner_deadzone;   // 0 - 50 (percentage of max stick radius)
-    int left_outer_deadzone;   // 0 - 30 (percentage of outer radius threshold)
-    int right_inner_deadzone;  // 0 - 50
-    int right_outer_deadzone;  // 0 - 30
-    int deadzone_shape;        // 0: Radial (circle), 1: Axial (cross)
-    int enable_plugin;         // 0: disabled, 1: enabled
+    int left_inner_deadzone;
+    int left_outer_deadzone;
+    int right_inner_deadzone;
+    int right_outer_deadzone;
+    int deadzone_shape;
+    int enable_plugin;
 } VitaDoctorConfig;
 
 void config_set_default(VitaDoctorConfig *cfg);
 int config_load(VitaDoctorConfig *cfg);
 int config_save(const VitaDoctorConfig *cfg);
 
-#endif // CONFIG_H
+#endif

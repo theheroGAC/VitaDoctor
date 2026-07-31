@@ -9,6 +9,7 @@
 #include "tab_display.h"
 #include "tab_motion.h"
 #include "tab_audio.h"
+#include "tab_system.h"
 
 int main(int argc, char *argv[]) {
     vita2d_init();
@@ -25,6 +26,7 @@ int main(int argc, char *argv[]) {
     tab_display_init();
     tab_motion_init();
     tab_audio_init();
+    tab_system_init();
 
     SceCtrlData pad;
     SceTouchData touch_front, touch_back;
@@ -93,6 +95,9 @@ int main(int argc, char *argv[]) {
             case TAB_AUDIO:
                 tab_audio_draw(&state);
                 break;
+            case TAB_SYSTEM:
+                tab_system_draw(&state);
+                break;
             default:
                 break;
         }
@@ -106,6 +111,7 @@ int main(int argc, char *argv[]) {
     vita2d_wait_rendering_done();
     gui_finish(&state);
     tab_audio_finish();
+    tab_system_finish();
     sceMotionStopSampling();
     vita2d_fini();
     sceKernelExitProcess(0);

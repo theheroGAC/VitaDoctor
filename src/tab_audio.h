@@ -8,4 +8,4 @@ void tab_audio_finish(void);
 void tab_audio_draw(GuiState *state);
 void tab_audio_handle_input(GuiState *state, uint32_t pressed_buttons);
 
-#endif // TAB_AUDIO_H
+#endif
