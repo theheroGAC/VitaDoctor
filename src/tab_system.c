@@ -9,6 +9,7 @@
 #include <psp2/power.h>
 #include <psp2/audioout.h>
 #include <psp2/kernel/sysmem.h>
+#include <psp2/vshbridge.h>
 
 static void *net_memory = NULL;
 static int net_inited = 0;
@@ -53,20 +54,28 @@ void tab_system_finish(void) {
 }
 
 static const char* get_hardware_model_string(void) {
-    int model = sceKernelGetModel();
-    if (model == SCE_KERNEL_MODEL_VITATV || model == 0x20000 || model == 2) {
+    if (vshSblAimgrIsDolce()) {
         return "PlayStation TV (VTE-1000)";
     }
 
-    SceOff host0_max = 0, host0_free = 0;
-    int has_host0 = (sceAppMgrGetDevInfo("host0:", &host0_max, &host0_free) >= 0);
-    if (has_host0) {
-        return "PS Vita Testing / Dev Kit (PTEL-1000 / PDEL-1000)";
+    if (vshSblAimgrIsTool()) {
+        return "PS Vita Dev Tool (PDEL-1000)";
     }
 
+    if (vshSblAimgrIsTest()) {
+        return "PS Vita Testing Kit (PTEL-1000)";
+    }
+
+    if (vshSblAimgrIsDEX()) {
+        return "PS Vita Developer Unit (DEX)";
+    }
+
+    SceOff imc0_max = 0, imc0_free = 0;
+    int has_imc0 = (sceAppMgrGetDevInfo("imc0:", &imc0_max, &imc0_free) >= 0 && imc0_max > 0);
     SceOff uma0_max = 0, uma0_free = 0;
     int has_uma0 = (sceAppMgrGetDevInfo("uma0:", &uma0_max, &uma0_free) >= 0 && uma0_max > 0);
-    if (has_uma0) {
+
+    if (has_imc0 || has_uma0) {
         return "PS Vita Slim (PCH-2000 LCD)";
     }
 
@@ -74,24 +83,51 @@ static const char* get_hardware_model_string(void) {
 }
 
 static const char* get_motherboard_revision_string(void) {
-    int model = sceKernelGetModel();
-    if (model == SCE_KERNEL_MODEL_VITATV || model == 0x20000 || model == 2) {
+    if (vshSblAimgrIsDolce()) {
         return "VTE-1000 (PSTV Mainboard)";
     }
 
-    SceOff host0_max = 0, host0_free = 0;
-    int has_host0 = (sceAppMgrGetDevInfo("host0:", &host0_max, &host0_free) >= 0);
-    if (has_host0) {
+    if (vshSblAimgrIsTool() || vshSblAimgrIsTest() || vshSblAimgrIsDEX()) {
         return "PDEL-1000 / PTEL-1000 (Development Board)";
     }
 
+    SceOff imc0_max = 0, imc0_free = 0;
+    int has_imc0 = (sceAppMgrGetDevInfo("imc0:", &imc0_max, &imc0_free) >= 0 && imc0_max > 0);
     SceOff uma0_max = 0, uma0_free = 0;
     int has_uma0 = (sceAppMgrGetDevInfo("uma0:", &uma0_max, &uma0_free) >= 0 && uma0_max > 0);
-    if (has_uma0) {
+
+    if (has_imc0 || has_uma0) {
         return "DOL-1001 / DOL-1002 (Slim Board)";
     }
 
     return "IRS-002 / PCA-001 (OLED Board)";
+}
+
+static void get_factory_firmware_string(char *out_buf, size_t size) {
+    SceUInt32 smi = 0;
+    if (_vshSblAimgrGetSMI(&smi) >= 0 && smi > 0) {
+        int major = (smi >> 24) & 0xF;
+        int minor = (smi >> 16) & 0xFF;
+        if (major > 0 && major < 4) {
+            snprintf(out_buf, size, "Factory Firmware: %x.%02x (AIMGR Base)", major, minor);
+            return;
+        }
+    }
+
+    if (vshSblAimgrIsDolce()) {
+        snprintf(out_buf, size, "Factory Firmware: 3.20 (PSTV Factory Base)");
+    } else {
+        SceOff imc0_max = 0, imc0_free = 0;
+        int has_imc0 = (sceAppMgrGetDevInfo("imc0:", &imc0_max, &imc0_free) >= 0 && imc0_max > 0);
+        SceOff uma0_max = 0, uma0_free = 0;
+        int has_uma0 = (sceAppMgrGetDevInfo("uma0:", &uma0_max, &uma0_free) >= 0 && uma0_max > 0);
+
+        if (has_imc0 || has_uma0) {
+            snprintf(out_buf, size, "Factory Firmware: 3.00 / 3.01 (Slim Base)");
+        } else {
+            snprintf(out_buf, size, "Factory Firmware: 1.06 / 1.60 (OLED Base)");
+        }
+    }
 }
 
 static int get_storage_info(const char *dev_name, SceOff *out_max, SceOff *out_free) {
@@ -173,14 +209,18 @@ void tab_system_draw(GuiState *state) {
         char buf[128];
         const char *model_str = get_hardware_model_string();
         snprintf(buf, sizeof(buf), "Model: %s", model_str);
-        vita2d_pgf_draw_text(state->font, 60, 158, COLOR_SUCCESS, 0.85f, buf);
+        vita2d_pgf_draw_text(state->font, 60, 155, COLOR_SUCCESS, 0.82f, buf);
 
         const char *mb_str = get_motherboard_revision_string();
         snprintf(buf, sizeof(buf), "Motherboard: %s", mb_str);
-        vita2d_pgf_draw_text(state->font, 60, 188, COLOR_TEXT, 0.85f, buf);
+        vita2d_pgf_draw_text(state->font, 60, 180, COLOR_TEXT, 0.82f, buf);
 
         snprintf(buf, sizeof(buf), "System Firmware: 3.65 / HENkaku");
-        vita2d_pgf_draw_text(state->font, 60, 218, COLOR_TEXT, 0.85f, buf);
+        vita2d_pgf_draw_text(state->font, 60, 205, COLOR_TEXT, 0.82f, buf);
+
+        char factory_fw_str[128];
+        get_factory_firmware_string(factory_fw_str, sizeof(factory_fw_str));
+        vita2d_pgf_draw_text(state->font, 60, 230, COLOR_ACCENT, 0.82f, factory_fw_str);
 
         int is_online = scePowerIsPowerOnline();
         int is_charging = scePowerIsBatteryCharging();
@@ -191,14 +231,14 @@ void tab_system_draw(GuiState *state) {
         } else {
             snprintf(buf, sizeof(buf), "Power Source: Internal Battery Power");
         }
-        vita2d_pgf_draw_text(state->font, 60, 248, COLOR_PRIMARY, 0.85f, buf);
+        vita2d_pgf_draw_text(state->font, 60, 255, COLOR_PRIMARY, 0.82f, buf);
 
         SceNetCtlInfo ip_info;
         if (net_inited && sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &ip_info) >= 0 && strlen(ip_info.ip_address) > 0) {
             snprintf(buf, sizeof(buf), "Wi-Fi IP Address: %s", ip_info.ip_address);
-            vita2d_pgf_draw_text(state->font, 60, 278, COLOR_TEXT, 0.85f, buf);
+            vita2d_pgf_draw_text(state->font, 60, 280, COLOR_TEXT, 0.82f, buf);
         } else {
-            vita2d_pgf_draw_text(state->font, 60, 278, COLOR_TEXT_MUTED, 0.85f, "Wi-Fi IP Address: Disconnected");
+            vita2d_pgf_draw_text(state->font, 60, 280, COLOR_TEXT_MUTED, 0.82f, "Wi-Fi IP Address: Disconnected");
         }
 
         SceNetEtherAddr mac_addr;
@@ -207,27 +247,27 @@ void tab_system_draw(GuiState *state) {
             snprintf(buf, sizeof(buf), "MAC Address: %02X:%02X:%02X:%02X:%02X:%02X",
                 mac_addr.data[0], mac_addr.data[1], mac_addr.data[2],
                 mac_addr.data[3], mac_addr.data[4], mac_addr.data[5]);
-            vita2d_pgf_draw_text(state->font, 60, 308, COLOR_TEXT, 0.85f, buf);
+            vita2d_pgf_draw_text(state->font, 60, 305, COLOR_TEXT, 0.82f, buf);
         } else {
-            vita2d_pgf_draw_text(state->font, 60, 308, COLOR_TEXT_MUTED, 0.85f, "MAC Address: Unavailable");
+            vita2d_pgf_draw_text(state->font, 60, 305, COLOR_TEXT_MUTED, 0.82f, "MAC Address: Unavailable");
         }
 
         if (led_test_active) {
             int blink_phase = (led_frame_counter % 30 < 15);
             if (blink_phase) {
-                vita2d_pgf_draw_text(state->font, 60, 338, COLOR_SUCCESS, 0.85f, "PS Button Blue LED: PULSING ON [⚡]");
+                vita2d_pgf_draw_text(state->font, 60, 330, COLOR_SUCCESS, 0.82f, "PS Button Blue LED: PULSING ON [⚡]");
             } else {
-                vita2d_pgf_draw_text(state->font, 60, 338, COLOR_WARNING, 0.85f, "PS Button Blue LED: PULSING OFF [ ]");
+                vita2d_pgf_draw_text(state->font, 60, 330, COLOR_WARNING, 0.82f, "PS Button Blue LED: PULSING OFF [ ]");
             }
         } else {
-            vita2d_pgf_draw_text(state->font, 60, 338, COLOR_PRIMARY, 0.85f, "PS Button Blue LED: Standby (Press TRIANGLE)");
+            vita2d_pgf_draw_text(state->font, 60, 330, COLOR_PRIMARY, 0.82f, "PS Button Blue LED: Standby (Press TRIANGLE)");
         }
 
-        gui_draw_panel(60, 360, 390, 35, COLOR_PANEL_BORDER, COLOR_PANEL_BORDER);
-        vita2d_pgf_draw_text(state->font, 75, 383, COLOR_WARNING, 0.78f, "[ TRIANGLE ] Pulse Blue LED Test  |  [ CIRCLE ] Off");
+        gui_draw_panel(60, 350, 390, 32, COLOR_PANEL_BORDER, COLOR_PANEL_BORDER);
+        vita2d_pgf_draw_text(state->font, 75, 371, COLOR_WARNING, 0.76f, "[ TRIANGLE ] Pulse Blue LED Test  |  [ CIRCLE ] Off");
 
-        vita2d_pgf_draw_text(state->font, 60, 412, COLOR_TEXT_MUTED, 0.80f, "CPU: ARM Cortex-A9 Quad  |  GPU: PowerVR SGX543");
-        vita2d_pgf_draw_text(state->font, 60, 445, COLOR_SUCCESS, 0.80f, "System Hardware: Operating Normally");
+        vita2d_pgf_draw_text(state->font, 60, 402, COLOR_TEXT_MUTED, 0.78f, "CPU: ARM Cortex-A9 Quad  |  GPU: PowerVR SGX543");
+        vita2d_pgf_draw_text(state->font, 60, 440, COLOR_SUCCESS, 0.78f, "System Hardware: Operating Normally");
     }
 
     gui_draw_panel(490, 95, 430, 390, COLOR_PANEL, COLOR_PANEL_BORDER);
@@ -237,7 +277,15 @@ void tab_system_draw(GuiState *state) {
 
     draw_storage_bar(state, 510, 145, 390, "ux0:", "SD2Vita / Memory Card");
     draw_storage_bar(state, 510, 215, 390, "ur0:", "Internal System Storage");
-    draw_storage_bar(state, 510, 285, 390, "uma0:", "USB / Secondary Storage");
+    
+    SceOff imc0_max = 0, imc0_free = 0;
+    int has_imc0 = (sceAppMgrGetDevInfo("imc0:", &imc0_max, &imc0_free) >= 0 && imc0_max > 0);
+    if (has_imc0) {
+        draw_storage_bar(state, 510, 285, 390, "imc0:", "Slim Internal 1GB Flash");
+    } else {
+        draw_storage_bar(state, 510, 285, 390, "uma0:", "USB / Secondary Storage");
+    }
+
     draw_storage_bar(state, 510, 355, 390, "gro0:", "Game Cartridge Slot");
 }
 

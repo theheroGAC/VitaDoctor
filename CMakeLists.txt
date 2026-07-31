@@ -25,7 +25,6 @@ set(VITA_VERSION "01.01")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-q -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-q -O2")
 
-# --- App Build Target ---
 add_executable(VitaDoctor
   src/main.c
   src/gui.c
@@ -61,27 +60,21 @@ target_link_libraries(VitaDoctor PRIVATE
   SceSysmodule_stub
   SceAppMgr_stub
   SceAppUtil_stub
+  SceVshBridge_stub
   m
 )
 
-# Genera eboot.bin
 vita_create_self(eboot.bin VitaDoctor UNSAFE)
 
-# Genera VPK e includi risorse
 vita_create_vpk(VitaDoctor.vpk ${VITA_TITLEID} eboot.bin
     VERSION ${VITA_VERSION}
     NAME ${VITA_APP_NAME}
 
-    # Icone e LiveArea
     FILE sce_sys/icon0.png sce_sys/icon0.png
     FILE sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
     FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
     FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 
-    # Audio Tones
     FILE audio/sound_left.wav audio/sound_left.wav
     FILE audio/sound_right.wav audio/sound_right.wav
 )
-
-
-
